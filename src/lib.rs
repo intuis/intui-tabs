@@ -61,6 +61,10 @@ impl TabsState {
     pub fn set(&mut self, idx: usize) {
         self.current_tab = idx.saturating_sub(1);
     }
+
+    pub fn current(&self) -> usize {
+        self.current_tab.saturating_add(1)
+    }
 }
 
 impl<T: ToString + Default> StatefulWidget for Tabs<T> {
