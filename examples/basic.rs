@@ -5,7 +5,6 @@ use std::{
 };
 
 use intui_tabs::{Tabs, TabsState};
-use ratatui::prelude::*;
 use ratatui::{
     crossterm::{
         event::{self, Event, KeyCode},
@@ -16,6 +15,7 @@ use ratatui::{
     widgets::Widget,
     Terminal,
 };
+use ratatui::{prelude::*, style::Color};
 
 fn main() {
     let mut terminal = init_terminal().unwrap();
@@ -91,14 +91,14 @@ impl Display for AppTabs {
 }
 
 impl Widget for &mut App {
-    fn render(self, area: ratatui::prelude::Rect, buf: &mut ratatui::prelude::Buffer)
+    fn render(self, area: Rect, buf: &mut Buffer)
     where
         Self: Sized,
     {
         Tabs::new(
-            true,
             vec![AppTabs::Main, AppTabs::Settings, AppTabs::About],
-            ratatui::style::Color::Red,
+            Color::Red,
+            true,
         )
         .render(area, buf, &mut self.tabs_state);
     }

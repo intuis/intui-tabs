@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use ratatui::{
     prelude::*,
     style::{Color, Style, Stylize},
@@ -7,13 +9,12 @@ use ratatui::{
 
 pub struct Tabs<T: ToString + Default> {
     tabs_list: Vec<Line<'static>>,
-    tabs: Vec<T>,
     color: Color,
-    // pub current_tab: usize,
+    _pht: PhantomData<T>,
 }
 
 impl<T: ToString + Default> Tabs<T> {
-    pub fn new(beginner_mode: bool, tabs: Vec<T>, color: Color) -> Self {
+    pub fn new(tabs: Vec<T>, color: Color, beginner_mode: bool) -> Self {
         let tabs_list = {
             let mut lines = vec![];
             if beginner_mode {
@@ -37,9 +38,8 @@ impl<T: ToString + Default> Tabs<T> {
 
         Self {
             tabs_list,
-            // current_tab: Default::default(),
-            tabs,
             color,
+            _pht: PhantomData,
         }
     }
 }
