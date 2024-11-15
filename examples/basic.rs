@@ -34,14 +34,41 @@ fn restore_terminal() -> io::Result<()> {
     execute!(stdout(), LeaveAlternateScreen)
 }
 
+#[derive(Copy, Clone)]
+enum CurrentTab {
+    Main,
+    Settings,
+    About,
+}
+
+impl Display for CurrentTab {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            CurrentTab::Main => write!(f, "Main"),
+            CurrentTab::Settings => write!(f, "Settings"),
+            CurrentTab::About => write!(f, "About"),
+        }
+    }
+}
+
+impl Default for CurrentTab {
+    fn default() -> Self {
+        Self::Main
+    }
+}
+
 struct App {
-    tabs_state: TabsState,
+    tabs_state: TabsState<CurrentTab>,
 }
 
 impl App {
     fn new() -> Self {
         Self {
-            tabs_state: TabsState::default(),
+            tabs_state: TabsState::new(vec![
+                CurrentTab::Main,
+                CurrentTab::Settings,
+                CurrentTab::About,
+            ]),
         }
     }
 
@@ -68,38 +95,14 @@ impl App {
     }
 }
 
-enum AppTabs {
-    Main,
-    Settings,
-    About,
-}
-
-impl Default for AppTabs {
-    fn default() -> Self {
-        AppTabs::Main
-    }
-}
-
-impl Display for AppTabs {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            AppTabs::Main => write!(f, "Main"),
-            AppTabs::Settings => write!(f, "Settings"),
-            AppTabs::About => write!(f, "About"),
-        }
-    }
-}
-
 impl Widget for &mut App {
     fn render(self, area: Rect, buf: &mut Buffer)
     where
         Self: Sized,
     {
-        Tabs::new(
-            vec![AppTabs::Main, AppTabs::Settings, AppTabs::About],
-            Color::Red,
-            true,
-        )
-        .render(area, buf, &mut self.tabs_state);
+        Tabs::new()
+            .color(Color::Red)
+            .beginner_mode(true)
+            .render(area, buf, &mut self.tabs_state);
     }
 }
