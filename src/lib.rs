@@ -10,6 +10,7 @@ use ratatui::{
 pub struct Tabs<T: ToString + Default> {
     beginner_mode: bool,
     color: Color,
+    center: bool,
     _pht: PhantomData<T>,
 }
 
@@ -18,6 +19,7 @@ impl<T: ToString + Default> Tabs<T> {
         Self {
             beginner_mode: true,
             color: Color::default(),
+            center: true,
             _pht: PhantomData,
         }
     }
@@ -29,6 +31,11 @@ impl<T: ToString + Default> Tabs<T> {
 
     pub fn beginner_mode(mut self, beginner_mode: bool) -> Self {
         self.beginner_mode = beginner_mode;
+        self
+    }
+
+    pub fn center(mut self, center: bool) -> Self {
+        self.center = center;
         self
     }
 }
@@ -78,25 +85,43 @@ impl<T: ToString + Default + Copy> StatefulWidget for Tabs<T> {
     where
         Self: Sized,
     {
+        let mut len = 0;
+        len += state.tabs_list.len() * 3;
         let tabs_list_lines = {
             let mut lines = vec![];
             if self.beginner_mode {
                 for (idx, tab) in state.tabs_list.iter().enumerate() {
                     let mut line = Line::default();
+
+                    let human_idx = (idx + 1).to_string();
+                    len += human_idx.len();
                     line.push_span(Span::styled(
-                        (idx + 1).to_string(),
+                        human_idx,
                         Style::default().underlined().underline_color(self.color),
                     ));
 
-                    line.push_span(Span::raw(format!(". {}", tab.to_string())));
+                    let tab_rest = format!(". {}", tab.to_string());
+                    len += tab_rest.len();
+                    line.push_span(Span::raw(tab_rest));
+
                     lines.push(line);
                 }
             } else {
                 for tab in &state.tabs_list {
+                    let tab_string = tab.to_string();
+                    len += tab_string.len();
                     lines.push(Line::raw(tab.to_string()));
                 }
             }
             lines
+        };
+
+        let area = if self.center {
+            Layout::horizontal([Constraint::Length(len.try_into().unwrap())])
+                .flex(layout::Flex::Center)
+                .split(area)[0]
+        } else {
+            area
         };
 
         let tabs_higlight_style = Style::default().fg(self.color).not_underlined();

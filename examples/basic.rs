@@ -103,6 +103,7 @@ impl Widget for &mut App {
         Tabs::new()
             .color(Color::Red)
             .beginner_mode(true)
+            .center(true)
             .render(area, buf, &mut self.tabs_state);
     }
 }
