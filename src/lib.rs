@@ -9,6 +9,7 @@ use ratatui::{
 
 pub struct Tabs<T: ToString + Default> {
     beginner_mode: bool,
+    sub_tab: bool,
     color: Color,
     center: bool,
     _pht: PhantomData<T>,
@@ -18,10 +19,16 @@ impl<T: ToString + Default> Tabs<T> {
     pub fn new() -> Self {
         Self {
             beginner_mode: true,
+            sub_tab: false,
             color: Color::default(),
             center: true,
             _pht: PhantomData,
         }
+    }
+
+    pub fn sub_tab(mut self, sub_tab: bool) -> Self {
+        self.sub_tab = sub_tab;
+        self
     }
 
     pub fn color(mut self, color: Color) -> Self {
@@ -37,6 +44,22 @@ impl<T: ToString + Default> Tabs<T> {
     pub fn center(mut self, center: bool) -> Self {
         self.center = center;
         self
+    }
+}
+
+fn digit_to_sign(digit: usize) -> &'static str {
+    match digit {
+        1 => "!",
+        2 => "@",
+        3 => "#",
+        4 => "$",
+        5 => "%",
+        6 => "^",
+        7 => "&",
+        8 => "*",
+        9 => "(",
+        0 => ")",
+        _ => "_",
     }
 }
 
@@ -93,7 +116,11 @@ impl<T: ToString + Default + Copy> StatefulWidget for Tabs<T> {
                 for (idx, tab) in state.tabs_list.iter().enumerate() {
                     let mut line = Line::default();
 
-                    let human_idx = (idx + 1).to_string();
+                    let human_idx = if self.sub_tab {
+                        digit_to_sign(idx + 1).to_string()
+                    } else {
+                        (idx + 1).to_string()
+                    };
                     len += human_idx.len();
                     line.push_span(Span::styled(
                         human_idx,
